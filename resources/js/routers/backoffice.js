@@ -1,4 +1,4 @@
-import { Home } from '../views/__backoffice';
+import { Home, Tasks } from '../views/__backoffice';
 import * as Settings from '../views/__backoffice/settings';
 import * as Users from '../views/__backoffice/users';
 
@@ -33,7 +33,11 @@ export default [
         path: '/',
         component: Home,
     },
-
+    {
+        name: 'tasks',
+        path: '/tasks',
+        component: Tasks,
+    },
     {
         name: 'settings.profile',
         path: '/settings/profile',

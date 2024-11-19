@@ -56,6 +56,7 @@ return [
     'dashboard' => 'Dashboard',
     'resources' => 'Resources',
     'users' => 'Users',
+    'tasks' => 'Tasks',
     'roles' => 'Roles',
 
     'citation' => 'Built with ❤️ by'
