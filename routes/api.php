@@ -48,6 +48,8 @@ Route::namespace('Api')->name('api.')->group(function () {
                     Route::delete('/', 'UsersController@destroyAvatar')->name('destroy');
                 });
             });
+
+            Route::resource('tasks', 'TasksController', ['except' => ['edit', 'create']]);
         });
     });
 });
