@@ -23,7 +23,16 @@ class TasksController extends Controller
      */
     public function index()
     {
-        $tasks = Task::with(['user', 'assignedUser'])->get();
+        $userId = auth()->id(); 
+    
+        $tasks = Task::with(['user', 'assignedUser'])
+            ->where(function ($query) use ($userId) {
+                $query->where('user_id', $userId)     
+                      ->orWhere('assigned_to', $userId); 
+            })
+            ->orderBy('created_at', 'desc') 
+            ->get();
+    
         return response()->json($tasks);
     }
 
