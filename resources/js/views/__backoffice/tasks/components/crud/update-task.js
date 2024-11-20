@@ -61,7 +61,7 @@ const styles = theme => ({
     }
 });
 
-const UpdateTask = ({ classes, open, onClose, task }) => {
+const UpdateTask = ({ classes, open, onClose, task, users }) => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -72,7 +72,6 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [users, setUsers] = useState([]);
 
     // Task verilerini form'a yükle
     useEffect(() => {
@@ -84,31 +83,6 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
             });
         }
     }, [task]);
-
-    // Kullanıcıları yükle
-    useEffect(() => {
-        let isMounted = true;
-
-        const fetchUsers = async () => {
-            try {
-                const response = await axios.get('/api/v1/users');
-                if (isMounted && response.data && response.data.data) {
-                    setUsers(response.data.data);
-                }
-            } catch (error) {
-                if (isMounted) {
-                    console.error('Kullanıcılar yüklenirken hata:', error);
-                    setUsers([]);
-                }
-            }
-        };
-
-        fetchUsers();
-
-        return () => {  // cleanup function
-            isMounted = false;
-        };
-    }, []);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
