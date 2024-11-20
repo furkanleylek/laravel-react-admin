@@ -62,7 +62,6 @@ const styles = theme => ({
 });
 
 const UpdateTask = ({ classes, open, onClose, task }) => {
-    console.log("task:", task);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -149,7 +148,6 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
             setLoading(false);
         }
     };
-    console.log("formData:",formData);
     return (
         <Dialog
             open={open}
