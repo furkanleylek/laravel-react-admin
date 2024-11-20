@@ -137,6 +137,8 @@ const TaskBoard = ({ classes }) => {
                 position: destination.index
             });
 
+            await taskService.notifyTaskStatusChange(draggableId, destination.droppableId.toLowerCase());
+
             toast.success('Task durumu güncellendi');
         } catch (error) {
             console.error('Task güncellenirken hata:', error);
