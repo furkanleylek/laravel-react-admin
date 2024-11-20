@@ -50,6 +50,8 @@ Route::namespace('Api')->name('api.')->group(function () {
             });
 
             Route::resource('tasks', 'TasksController', ['except' => ['edit', 'create']]);
+            Route::post('tasks/{task}/status', 'TasksController@notifyTaskStatusChange')
+                ->name('tasks.notifyTaskStatusChange');
         });
     });
 });
