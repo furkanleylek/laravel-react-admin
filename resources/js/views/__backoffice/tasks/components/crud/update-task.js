@@ -62,6 +62,7 @@ const styles = theme => ({
 });
 
 const UpdateTask = ({ classes, open, onClose, task }) => {
+    console.log("task:", task);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -80,7 +81,7 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                 title: task.title,
                 description: task.description || '',
                 startDate: moment(task.start_date).format('YYYY-MM-DD'),
-                status: task.status.toUpperCase(),
+                status: task.status,
                 assigned_to: task.assigned_to || ''
             });
         }
@@ -148,7 +149,7 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
             setLoading(false);
         }
     };
-
+    console.log("formData:",formData);
     return (
         <Dialog
             open={open}
@@ -156,7 +157,7 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
             maxWidth="sm"
             fullWidth
         >
-            <DialogTitle>Görevi Düzenle</DialogTitle>
+            <DialogTitle>Update Task</DialogTitle>
 
             <DialogContent>
                 <form className={classes.form} onSubmit={handleSubmit}>
@@ -165,7 +166,7 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                             <FormControl className={classes.formControl}>
                                 <TextField
                                     name="title"
-                                    label="Başlık"
+                                    label="Title"
                                     value={formData.title}
                                     onChange={handleChange}
                                     required
@@ -178,7 +179,7 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                             <FormControl className={classes.formControl}>
                                 <TextField
                                     name="description"
-                                    label="Açıklama"
+                                    label="Description"
                                     value={formData.description}
                                     onChange={handleChange}
                                     multiline
@@ -192,7 +193,7 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                             <FormControl className={classes.formControl}>
                                 <TextField
                                     name="startDate"
-                                    label="Başlangıç Tarihi"
+                                    label="Start Date"
                                     type="date"
                                     value={formData.startDate}
                                     onChange={handleChange}
@@ -213,16 +214,16 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                                     onChange={handleChange}
                                     fullWidth
                                 >
-                                    <MenuItem value="TODO">Yapılacak</MenuItem>
-                                    <MenuItem value="IN_PROGRESS">Devam Ediyor</MenuItem>
-                                    <MenuItem value="DONE">Tamamlandı</MenuItem>
+                                    <MenuItem value="todo">TO-DO</MenuItem>
+                                    <MenuItem value="inprogress">IN-PROGRESS</MenuItem>
+                                    <MenuItem value="done">DONE</MenuItem>
                                 </Select>
                             </FormControl>
                         </Grid>
 
                         <Grid item xs={12}>
                             <FormControl className={classes.formControl}>
-                                <InputLabel shrink>Atanan Kişi</InputLabel>
+                                <InputLabel shrink>Assigned User</InputLabel>
                                 <Select
                                     name="assigned_to"
                                     value={formData.assigned_to || ''}
@@ -231,11 +232,11 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                                     displayEmpty
                                     renderValue={(selected) => {
                                         if (!selected) {
-                                            return <em>Seçiniz</em>;
+                                            return <em>Select</em>;
                                         }
                                         const selectedUser = users.find(user => user.id === selected);
-                                        if (!selectedUser) return <em>Seçiniz</em>;
-                                        
+                                        if (!selectedUser) return <em>Select</em>;
+
                                         return (
                                             <div className={classes.selectedUserInfo}>
                                                 <Avatar className={classes.userAvatar}>
@@ -250,7 +251,7 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                                     }}
                                 >
                                     <MenuItem value="">
-                                        <em>Seçiniz</em>
+                                        <em>Select</em>
                                     </MenuItem>
                                     {Array.isArray(users) && users.map(user => (
                                         <MenuItem key={user.id} value={user.id}>
@@ -273,12 +274,12 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
             </DialogContent>
 
             <DialogActions className={classes.buttons}>
-                <Button 
-                    onClick={() => onClose()} 
+                <Button
+                    onClick={() => onClose()}
                     color="secondary"
                     disabled={loading}
                 >
-                    İptal
+                    Cancel
                 </Button>
                 <Button
                     onClick={handleSubmit}
@@ -289,10 +290,10 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                     {loading ? (
                         <>
                             <CircularProgress size={20} className={classes.buttonProgress} />
-                            Güncelleniyor...
+                            Updating...
                         </>
                     ) : (
-                        'Güncelle'
+                        'Update'
                     )}
                 </Button>
             </DialogActions>

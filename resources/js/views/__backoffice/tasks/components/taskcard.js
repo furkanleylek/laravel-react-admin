@@ -226,7 +226,6 @@ const TaskCard = ({
         // TODO: Delete işlemi
         console.log('Delete task:', task.id);
     };
-
     return (
         <>
             <Card
@@ -254,7 +253,7 @@ const TaskCard = ({
                     <div className={classes.footer}>
                         <div className={classes.dates}>
                             <Typography className={classes.dateText}>
-                                {moment(task.startDate).format('DD/MM/YYYY')}
+                                {moment(task.start_date).format('DD/MM/YYYY')}
                             </Typography>
                             {/* <Typography className={classes.dateText}>
                                 {moment(createdAt).format('DD/MM/YYYY')}
