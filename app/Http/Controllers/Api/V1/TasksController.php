@@ -7,7 +7,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Notifications\TaskStatusChanged;
 use App\User;
-
+use App\Jobs\ProcessScheduledTask;
+use Carbon\Carbon;
 /*
 public function index()   // GET    /tasks      (Liste)
 public function store()   // POST   /tasks      (Oluştur)
@@ -59,7 +60,16 @@ class TasksController extends Controller
             'created_by' => auth()->id()
         ]));
     
+        if ($task->start_date) {
+            $startDate = Carbon::parse($task->start_date, 'Europe/Istanbul')
+                ->setTimezone('UTC');  // UTC'ye çevir
+            
+            ProcessScheduledTask::dispatch($task)
+                ->delay($startDate);
+        }
+
         $task->load(['user', 'assignedUser']);
+
         return response()->json($task, 201);
     }
 
@@ -96,7 +106,16 @@ class TasksController extends Controller
             'updated_by' => auth()->id()
         ]));
     
+        if ($task->wasChanged('start_date') && $task->start_date) {
+            $startDate = Carbon::parse($task->start_date, 'Europe/Istanbul')
+                ->setTimezone('UTC');  // UTC'ye çevir
+            
+            ProcessScheduledTask::dispatch($task)
+                ->delay($startDate);
+        }
+    
         $task->load(['user', 'assignedUser']);
+
         return response()->json($task);
     }
 
