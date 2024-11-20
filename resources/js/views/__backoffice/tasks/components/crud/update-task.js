@@ -65,7 +65,8 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        startDate: '',
+        start_date: '',
+        start_time: '',
         status: '',
         assigned_to: ''
     });
@@ -77,11 +78,9 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
     useEffect(() => {
         if (task) {
             setFormData({
-                title: task.title,
-                description: task.description || '',
-                startDate: moment(task.start_date).format('YYYY-MM-DD'),
-                status: task.status,
-                assigned_to: task.assigned_to || ''
+                ...task,
+                start_date: moment(task.start_date).format('YYYY-MM-DD'),
+                start_time: moment(task.start_date).format('HH:mm')
             });
         }
     }, [task]);
@@ -126,8 +125,10 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
 
         const apiFormData = {
             ...formData,
-            status: formData.status.toLowerCase(),
-            start_date: formData.startDate
+            start_date: moment(
+                `${formData.start_date} ${formData.start_time}`,
+                'YYYY-MM-DD HH:mm'
+            ).format('YYYY-MM-DD HH:mm:ss')
         };
 
         try {
@@ -187,20 +188,41 @@ const UpdateTask = ({ classes, open, onClose, task }) => {
                             </FormControl>
                         </Grid>
 
-                        <Grid item xs={12} sm={6}>
-                            <FormControl className={classes.formControl}>
-                                <TextField
-                                    name="startDate"
-                                    label="Start Date"
-                                    type="date"
-                                    value={formData.startDate}
-                                    onChange={handleChange}
-                                    InputLabelProps={{
-                                        shrink: true,
-                                    }}
-                                    fullWidth
-                                />
-                            </FormControl>
+                        <Grid container spacing={2}>
+                            <Grid item xs={12} sm={6}>
+                                <FormControl className={classes.formControl}>
+                                    <TextField
+                                        name="start_date"
+                                        label="Start Date"
+                                        type="date"
+                                        value={formData.start_date}
+                                        onChange={handleChange}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        fullWidth
+                                    />
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <FormControl className={classes.formControl}>
+                                    <TextField
+                                        name="start_time"
+                                        label="Start Time"
+                                        type="time"
+                                        value={formData.start_time}
+                                        onChange={handleChange}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        inputProps={{
+                                            step: 300, // 5 dakikalık adımlar
+                                        }}
+                                        fullWidth
+                                    />
+                                </FormControl>
+                            </Grid>
                         </Grid>
 
                         <Grid item xs={12} sm={6}>

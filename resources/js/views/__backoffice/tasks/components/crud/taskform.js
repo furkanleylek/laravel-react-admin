@@ -81,6 +81,7 @@ const TaskForm = ({ classes }) => {
         title: '',
         description: '',
         start_date: moment().format('YYYY-MM-DD'),
+        start_time: moment().format('HH:mm'),
         status: 'todo'
     });
     const [loading, setLoading] = useState(false);
@@ -122,10 +123,15 @@ const TaskForm = ({ classes }) => {
         setLoading(true);
         setError(null);
 
+        const combinedDateTime = moment(
+            `${formData.start_date} ${formData.start_time}`,
+            'YYYY-MM-DD HH:mm'
+        ).format('YYYY-MM-DD HH:mm:ss');
+
         const apiFormData = {
             ...formData,
-            status: formData.status.toLowerCase(),
-            start_date: formData.start_date
+            start_date: combinedDateTime,
+            status: formData.status.toLowerCase()
         };
 
         try {
@@ -153,7 +159,8 @@ const TaskForm = ({ classes }) => {
             title: '',
             description: '',
             start_date: moment().format('YYYY-MM-DD'),
-            status: 'todo' 
+            start_time: moment().format('HH:mm'),
+            status: 'todo'
         });
         setIsOpen(false);
     };
@@ -217,6 +224,25 @@ const TaskForm = ({ classes }) => {
                                         onChange={handleChange}
                                         InputLabelProps={{
                                             shrink: true,
+                                        }}
+                                        fullWidth
+                                    />
+                                </FormControl>
+                            </Grid>
+
+                            <Grid item xs={12} sm={6}>
+                                <FormControl className={classes.formControl}>
+                                    <TextField
+                                        name="start_time"
+                                        label="Start Time"
+                                        type="time"
+                                        value={formData.start_time}
+                                        onChange={handleChange}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        inputProps={{
+                                            step: 300,
                                         }}
                                         fullWidth
                                     />
