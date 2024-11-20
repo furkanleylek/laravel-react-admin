@@ -21,6 +21,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import moment from 'moment';
 import UpdateTask from './crud/update-task';
+import DeleteTask from './crud/delete-task';
 
 const styles = theme => ({
     card: {
@@ -164,12 +165,13 @@ const styles = theme => ({
 const TaskCard = ({
     classes,
     task,
-    onTaskUpdate
+    onTaskUpdate,
+    onTaskDelete
 }) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-    console.log("taskcard :",task)
     const users = [
         { id: 1, name: 'Furkan Leylek', email: 'furkan@example.com' },
         { id: 2, name: 'Ahmet Yılmaz', email: 'ahmet@example.com' },
@@ -223,9 +225,17 @@ const TaskCard = ({
 
     const handleDelete = (event) => {
         handleMenuClose(event);
-        // TODO: Delete işlemi
-        console.log('Delete task:', task.id);
+        setIsDeleteModalOpen(true);
     };
+
+    const handleDeleteConfirm = () => {
+        setIsDeleteModalOpen(false);
+        if (onTaskDelete) {
+            console.log("task.id:",task.id);
+            onTaskDelete(task.id);
+        }
+    };
+
     return (
         <>
             <Card
@@ -255,9 +265,6 @@ const TaskCard = ({
                             <Typography className={classes.dateText}>
                                 {moment(task.start_date).format('DD/MM/YYYY')}
                             </Typography>
-                            {/* <Typography className={classes.dateText}>
-                                {moment(createdAt).format('DD/MM/YYYY')}
-                            </Typography> */}
                         </div>
 
                         <Avatar
@@ -269,6 +276,18 @@ const TaskCard = ({
                     </div>
                 </CardContent>
             </Card>
+
+            <DeleteTask
+                open={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onDelete={handleDeleteConfirm}
+            />
+
+            <UpdateTask
+                open={isUpdateModalOpen}
+                onClose={handleTaskUpdate}
+                task={task}
+            />
 
             <Popover
                 open={Boolean(anchorEl)}
@@ -311,12 +330,6 @@ const TaskCard = ({
                     ))}
                 </List>
             </Popover>
-
-            <UpdateTask
-                open={isUpdateModalOpen}
-                onClose={handleTaskUpdate}
-                task={task}
-            />
 
             {/* More Menu */}
             <Menu

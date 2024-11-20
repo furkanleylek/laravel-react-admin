@@ -7,6 +7,7 @@ import TaskCard from './taskcard';
 import { taskService } from './services/taskservice';
 import { toast } from 'react-hot-toast';
 import { Error as ErrorLayout } from '../../../layouts';
+import { useApp } from '../../../../AppContext';
 
 const styles = theme => ({
     column: {
@@ -37,7 +38,7 @@ const styles = theme => ({
     }
 });
 
-const Column = ({ classes, title, tasks = [], showCheckIcon = false, columnId, onTaskUpdate }) => (
+const Column = ({ classes, title, tasks = [], showCheckIcon = false, columnId, onTaskUpdate, onTaskDelete }) => (
     <Grid item xs={12} md={4}>
         <Paper className={classes.column}>
             <div className={classes.columnTitle}>
@@ -72,6 +73,7 @@ const Column = ({ classes, title, tasks = [], showCheckIcon = false, columnId, o
                                         <TaskCard
                                             task={task}
                                             onTaskUpdate={onTaskUpdate}
+                                            onTaskDelete={onTaskDelete}
                                         />
                                     </div>
                                 )}
@@ -86,13 +88,14 @@ const Column = ({ classes, title, tasks = [], showCheckIcon = false, columnId, o
 );
 
 const TaskBoard = ({ classes }) => {
+    const { shouldRefreshTasks } = useApp();
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchTasks();
-    }, []);
+    }, [shouldRefreshTasks]);
 
     const fetchTasks = async () => {
         try {
@@ -159,6 +162,17 @@ const TaskBoard = ({ classes }) => {
         }
     };
 
+    const handleDeleteTask = async (taskId) => {
+        try {
+            await taskService.deleteTask(taskId);
+            fetchTasks();
+            toast.success('Task silindi');
+        } catch (error) {
+            console.error('Task silinirken hata:', error);
+            toast.error('Task silinirken bir hata oluştu');
+        }
+    }
+
     if (loading) {
         return (
             <Grid container justifyContent="center" alignItems="center" style={{ minHeight: '400px' }}>
@@ -199,6 +213,7 @@ const TaskBoard = ({ classes }) => {
                         tasks={column.tasks}
                         showCheckIcon={column.showCheckIcon}
                         onTaskUpdate={handleTaskUpdate}
+                        onTaskDelete={handleDeleteTask}
                     />
                 ))}
             </Grid>
