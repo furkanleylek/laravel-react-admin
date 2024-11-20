@@ -26,5 +26,13 @@ export const taskService = {
     createTask: async (data) => {
         const response = await axios.post(BASE_URL, data);
         return response.data;
+    },
+
+    // Drag-drop için status güncelleme, notification endpoint
+    notifyTaskStatusChange: async (taskId, newStatus) => {
+        const response = await axios.post(`${BASE_URL}/${taskId}/status`, {
+            status: newStatus
+        });
+        return response.data;
     }
 };
