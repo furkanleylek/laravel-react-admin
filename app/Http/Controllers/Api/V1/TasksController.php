@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\V1;
 use App\Models\Task;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Notifications\TaskStatusChanged;
+use App\User;
 
 /*
 public function index()   // GET    /tasks      (Liste)
@@ -115,5 +117,39 @@ class TasksController extends Controller
         $task->delete();
     
         return response()->json(null, 204);
+    }
+
+    public function notifyTaskStatusChange(Request $request, Task $task)
+    {
+        try {
+            $oldStatus = $task->status;
+            $newStatus = $request->status;
+
+            $task->update([
+                'status' => $newStatus
+            ]);
+
+            $assignedUser = User::find($task->assigned_to);
+            $createdByUser = User::find($task->user_id);
+
+            $usersToNotify = collect([$assignedUser, $createdByUser])
+                ->filter()
+                ->unique('id')
+                ->each(function ($user) use ($task, $oldStatus, $newStatus) {
+                    $user->notify(new TaskStatusChanged($task, $oldStatus, $newStatus));
+                });
+
+            return response()->json([
+                'message' => 'Task status updated successfully',
+                'task' => $task,
+                'notifications_sent' => $usersToNotify->count()
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Failed to update task status',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
