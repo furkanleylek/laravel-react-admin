@@ -20,6 +20,7 @@ import { toast } from 'react-hot-toast';
 import Avatar from '@material-ui/core/Avatar';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
+import { useApp } from '../../../../../AppContext';
 
 const styles = theme => ({
     addButton: {
@@ -74,12 +75,13 @@ const styles = theme => ({
 });
 
 const TaskForm = ({ classes }) => {
+    const { refreshTasks } = useApp();
     const [isOpen, setIsOpen] = useState(false);
     const [formData, setFormData] = useState({
         title: '',
         description: '',
-        startDate: moment().format('YYYY-MM-DD'),
-        status: 'TODO'
+        start_date: moment().format('YYYY-MM-DD'),
+        status: 'todo'
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -123,15 +125,16 @@ const TaskForm = ({ classes }) => {
         const apiFormData = {
             ...formData,
             status: formData.status.toLowerCase(),
-            start_date: formData.startDate
+            start_date: formData.start_date
         };
 
         try {
             const response = await axios.post('/api/v1/tasks', apiFormData);
 
-            if (response.status === 201) {  // 201 Created
+            if (response.status === 201) {
                 handleReset();
                 toast.success('Görev başarıyla oluşturuldu');
+                refreshTasks();
             }
         } catch (error) {
             console.error('API Error:', error);
@@ -149,8 +152,8 @@ const TaskForm = ({ classes }) => {
         setFormData({
             title: '',
             description: '',
-            startDate: moment().format('YYYY-MM-DD'),
-            status: 'TODO'
+            start_date: moment().format('YYYY-MM-DD'),
+            status: 'todo' 
         });
         setIsOpen(false);
     };
@@ -172,7 +175,7 @@ const TaskForm = ({ classes }) => {
                 maxWidth="sm"
                 fullWidth
             >
-                <DialogTitle>Yeni Görev Oluştur</DialogTitle>
+                <DialogTitle>Create New Task</DialogTitle>
 
                 <DialogContent>
                     <form className={classes.form} onSubmit={handleSubmit}>
@@ -181,7 +184,7 @@ const TaskForm = ({ classes }) => {
                                 <FormControl className={classes.formControl}>
                                     <TextField
                                         name="title"
-                                        label="Başlık"
+                                        label="Title"
                                         value={formData.title}
                                         onChange={handleChange}
                                         required
@@ -207,10 +210,10 @@ const TaskForm = ({ classes }) => {
                             <Grid item xs={12} sm={6}>
                                 <FormControl className={classes.formControl}>
                                     <TextField
-                                        name="startDate"
-                                        label="Başlangıç Tarihi"
+                                        name="start_date"
+                                        label="Start Date"
                                         type="date"
-                                        value={formData.startDate}
+                                        value={formData.start_date}
                                         onChange={handleChange}
                                         InputLabelProps={{
                                             shrink: true,
@@ -229,9 +232,9 @@ const TaskForm = ({ classes }) => {
                                         onChange={handleChange}
                                         fullWidth
                                     >
-                                        <MenuItem value="TODO">Yapılacak</MenuItem>
-                                        <MenuItem value="IN_PROGRESS">Devam Ediyor</MenuItem>
-                                        <MenuItem value="DONE">Tamamlandı</MenuItem>
+                                        <MenuItem value="todo">TO-DO</MenuItem>
+                                        <MenuItem value="inprogress">IN-PROGRESS</MenuItem>
+                                        <MenuItem value="done">DONE</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -247,10 +250,10 @@ const TaskForm = ({ classes }) => {
                                         displayEmpty
                                         renderValue={(selected) => {
                                             if (!selected) {
-                                                return <em>Seçiniz</em>;
+                                                return <em>Select</em>;
                                             }
                                             const selectedUser = users.find(user => user.id === selected);
-                                            if (!selectedUser) return <em>Seçiniz</em>;
+                                            if (!selectedUser) return <em>Select</em>;
                                             
                                             return (
                                                 <div className={classes.selectedUserInfo}>
@@ -266,7 +269,7 @@ const TaskForm = ({ classes }) => {
                                         }}
                                     >
                                         <MenuItem value="">
-                                            <em>Seçiniz</em>
+                                            <em>Select</em>
                                         </MenuItem>
                                         {Array.isArray(users) && users.map(user => (
                                             <MenuItem key={user.id} value={user.id}>
@@ -290,14 +293,14 @@ const TaskForm = ({ classes }) => {
 
                 <DialogActions className={classes.buttons}>
                     <Button onClick={handleReset} color="secondary">
-                        İptal
+                        Cancel
                     </Button>
                     <Button
                         onClick={handleSubmit}
                         color="primary"
                         variant="contained"
                     >
-                        Kaydet
+                        Save
                     </Button>
                 </DialogActions>
             </Dialog>
