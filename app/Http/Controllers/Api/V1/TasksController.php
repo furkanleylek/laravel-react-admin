@@ -9,6 +9,7 @@ use App\Notifications\TaskStatusChanged;
 use App\User;
 use App\Jobs\ProcessScheduledTask;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 /*
 public function index()   // GET    /tasks      (Liste)
 public function store()   // POST   /tasks      (Oluştur)
@@ -26,17 +27,20 @@ class TasksController extends Controller
      */
     public function index()
     {
-        $userId = auth()->id(); 
-    
-        $tasks = Task::with(['user', 'assignedUser'])
-            ->where(function ($query) use ($userId) {
-                $query->where('user_id', $userId)     
-                      ->orWhere('assigned_to', $userId); 
-            })
-            ->orderBy('created_at', 'desc') 
-            ->get();
-    
-        return response()->json($tasks);
+        $userId = auth()->id();
+        $cacheKey = "tasks_user_{$userId}";
+
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($userId) {
+            return Task::query()
+                ->select(['id', 'title', 'description', 'status', 'user_id', 'assigned_to', 'created_at'])
+                ->with(['user:id,name,username,email', 'assignedUser:id,name,username,email'])
+                ->where(function ($query) use ($userId) {
+                    $query->where('user_id', $userId)
+                          ->orWhere('assigned_to', $userId);
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
+        });
     }
 
     /**
@@ -68,7 +72,15 @@ class TasksController extends Controller
                 ->delay($startDate);
         }
 
-        $task->load(['user', 'assignedUser']);
+        $task = Task::query()
+            ->with(['user:id,name,username,email', 'assignedUser:id,name,username,email'])
+            ->find($task->id);
+
+        // Yeni task oluşturulduğunda cache'i temizle
+        Cache::forget("tasks_user_{$task->user_id}");
+        if ($task->assigned_to) {
+            Cache::forget("tasks_user_{$task->assigned_to}");
+        }
 
         return response()->json($task, 201);
     }
@@ -81,7 +93,7 @@ class TasksController extends Controller
      */
     public function show(Task $task)
     {
-        $task->load(['user', 'assignedUser']);
+        $task->load(['user:id,name,username,email', 'assignedUser:id,name,username,email']);
         return response()->json($task);
     }
    
@@ -94,6 +106,8 @@ class TasksController extends Controller
      */
     public function update(Request $request, Task $task)
     {
+        $oldAssignedTo = $task->assigned_to;
+        
         $validated = $request->validate([
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|nullable|string',
@@ -114,7 +128,16 @@ class TasksController extends Controller
                 ->delay($startDate);
         }
     
-        $task->load(['user', 'assignedUser']);
+        $task->load(['user:id,name,username,email', 'assignedUser:id,name,username,email']);
+
+        // Cache'i temizle
+        Cache::forget("tasks_user_{$task->user_id}");
+        if ($oldAssignedTo) {
+            Cache::forget("tasks_user_{$oldAssignedTo}");
+        }
+        if ($task->assigned_to) {
+            Cache::forget("tasks_user_{$task->assigned_to}");
+        }
 
         return response()->json($task);
     }
@@ -127,6 +150,12 @@ class TasksController extends Controller
      */
     public function destroy(Task $task)
     {
+        // Cache'i temizle
+        Cache::forget("tasks_user_{$task->user_id}");
+        if ($task->assigned_to) {
+            Cache::forget("tasks_user_{$task->assigned_to}");
+        }
+
         // Önce deleted_by'ı güncelle
         $task->update([
             'deleted_by' => auth()->id()
@@ -157,6 +186,12 @@ class TasksController extends Controller
                 ->each(function ($user) use ($task, $oldStatus, $newStatus) {
                     $user->notify(new TaskStatusChanged($task, $oldStatus, $newStatus));
                 });
+
+            // Status değiştiğinde cache'i temizle
+            Cache::forget("tasks_user_{$task->user_id}");
+            if ($task->assigned_to) {
+                Cache::forget("tasks_user_{$task->assigned_to}");
+            }
 
             return response()->json([
                 'message' => 'Task status updated successfully',
