@@ -40,6 +40,13 @@ class ProcessScheduledTask implements ShouldQueue
     public function handle()
     {
         try {
+
+            if($this->task->status === 'todo'){
+                $this->task->update([
+                    'status' => 'inprogress',
+                ]);
+            }
+
             $assignedUser = User::find($this->task->assigned_to);
             $createdByUser = User::find($this->task->user_id);
     
