@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
     Card,
     CardContent,
@@ -22,7 +22,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import moment from 'moment';
 import UpdateTask from './crud/update-task';
 import DeleteTask from './crud/delete-task';
-
+import { toast } from 'react-hot-toast';
 const styles = theme => ({
     card: {
         marginBottom: theme.spacing.unit * 2,
@@ -165,6 +165,7 @@ const styles = theme => ({
 const TaskCard = ({
     classes,
     task,
+    users,
     onTaskUpdate,
     onTaskDelete
 }) => {
@@ -172,11 +173,6 @@ const TaskCard = ({
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [menuAnchorEl, setMenuAnchorEl] = useState(null);
-    const users = [
-        { id: 1, name: 'Furkan Leylek', email: 'furkan@example.com' },
-        { id: 2, name: 'Ahmet Yılmaz', email: 'ahmet@example.com' },
-        { id: 3, name: 'Mehmet Demirrrr', email: 'mehmet@example.com' }
-    ];
 
     const getInitials = (name) => {
         return name
@@ -195,21 +191,32 @@ const TaskCard = ({
         setAnchorEl(null);
     };
 
-    const handleAssign = (user) => {
-        console.log('Assigned to:', user);
-        handleClose();
-    };
+    const handleAssign = useCallback(async (user) => {
+        try {
+            const updatedTask = {
+                ...task,
+                assigned_to: user.id,
+                assigned_user: user
+            };
 
-    const handleTaskUpdate = (updatedTask) => {
+            await onTaskUpdate(updatedTask);
+            handleClose();
+            toast.success('Görev atandı');
+        } catch (error) {
+            console.error('Görev atanırken hata:', error);
+            toast.error('Görev atanırken bir hata oluştu');
+        }
+    }, [task, onTaskUpdate]);
+
+    const handleTaskUpdate = useCallback((updatedTask) => {
         setIsUpdateModalOpen(false);
-
         if (updatedTask && onTaskUpdate) {
             onTaskUpdate(updatedTask);
         }
-    };
+    }, [onTaskUpdate]);
 
     const handleMenuClick = (event) => {
-        event.stopPropagation();  // Card click'i engelle
+        event.stopPropagation();
         setMenuAnchorEl(event.currentTarget);
     };
 
@@ -228,13 +235,12 @@ const TaskCard = ({
         setIsDeleteModalOpen(true);
     };
 
-    const handleDeleteConfirm = () => {
+    const handleDeleteConfirm = useCallback(() => {
         setIsDeleteModalOpen(false);
         if (onTaskDelete) {
-            console.log("task.id:",task.id);
             onTaskDelete(task.id);
         }
-    };
+    }, [onTaskDelete, task.id]);
 
     return (
         <>
@@ -287,6 +293,7 @@ const TaskCard = ({
                 open={isUpdateModalOpen}
                 onClose={handleTaskUpdate}
                 task={task}
+                users={users}
             />
 
             <Popover

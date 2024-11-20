@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Grid, Paper, Typography, CircularProgress } from '@material-ui/core';
 import { withStyles } from '@material-ui/core/styles';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
@@ -8,6 +8,7 @@ import { taskService } from './services/taskservice';
 import { toast } from 'react-hot-toast';
 import { Error as ErrorLayout } from '../../../layouts';
 import { useApp } from '../../../../AppContext';
+import axios from 'axios';
 
 const styles = theme => ({
     column: {
@@ -38,7 +39,7 @@ const styles = theme => ({
     }
 });
 
-const Column = ({ classes, title, tasks = [], showCheckIcon = false, columnId, onTaskUpdate, onTaskDelete }) => (
+const Column = ({ classes, title, tasks = [], users, showCheckIcon = false, columnId, onTaskUpdate, onTaskDelete }) => (
     <Grid item xs={12} md={4}>
         <Paper className={classes.column}>
             <div className={classes.columnTitle}>
@@ -72,6 +73,7 @@ const Column = ({ classes, title, tasks = [], showCheckIcon = false, columnId, o
                                     >
                                         <TaskCard
                                             task={task}
+                                            users={users}
                                             onTaskUpdate={onTaskUpdate}
                                             onTaskDelete={onTaskDelete}
                                         />
@@ -90,18 +92,40 @@ const Column = ({ classes, title, tasks = [], showCheckIcon = false, columnId, o
 const TaskBoard = ({ classes }) => {
     const { shouldRefreshTasks } = useApp();
     const [tasks, setTasks] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    useEffect(() => {
-        fetchTasks();
-    }, [shouldRefreshTasks]);
+    const fetchUsers = useCallback(async () => {
+        const cachedUsers = localStorage.getItem('users');
+        const cacheTime = localStorage.getItem('users_cache_time');
+        const now = new Date().getTime();
 
-    const fetchTasks = async () => {
+        if (cachedUsers && cacheTime && (now - cacheTime) < 300000) {
+            setUsers(JSON.parse(cachedUsers));
+            return;
+        }
+
+        try {
+            const response = await axios.get('/api/v1/users');
+            if (response.data && response.data.data) {
+                setUsers(response.data.data);
+                localStorage.setItem('users', JSON.stringify(response.data.data));
+                localStorage.setItem('users_cache_time', now.toString());
+            }
+        } catch (error) {
+            console.error('Kullanıcılar yüklenirken hata:', error);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchUsers();
+    }, [fetchUsers]);
+
+    const fetchTasks = useCallback(async () => {
         try {
             setLoading(true);
             const response = await taskService.getAllTasks();
-            console.log("fetchTasks response: ", response)
             setTasks(response || []);
             setError(null);
         } catch (error) {
@@ -111,9 +135,13 @@ const TaskBoard = ({ classes }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, []); 
 
-    const handleDragEnd = async (result) => {
+    useEffect(() => {
+        fetchTasks();
+    }, [fetchTasks, shouldRefreshTasks]);
+
+    const handleDragEnd = useCallback(async (result) => {
         const { destination, source, draggableId } = result;
 
         if (!destination) return;
@@ -145,26 +173,24 @@ const TaskBoard = ({ classes }) => {
             toast.error('Task güncellenirken bir hata oluştu');
             fetchTasks();
         }
-    };
+    }, [tasks, fetchTasks]); 
 
-    const handleTaskUpdate = async (updatedTask) => {
+    const handleTaskUpdate = useCallback(async (updatedTask) => {
         try {
             const response = await taskService.updateTask(updatedTask.id, updatedTask);
-            
-            setTasks(prevTasks => 
-                prevTasks.map(task => 
+            setTasks(prevTasks =>
+                prevTasks.map(task =>
                     task.id === response.id ? response : task
                 )
             );
-            
             toast.success('Task güncellendi');
         } catch (error) {
             console.error('Task güncellenirken hata:', error);
             toast.error('Task güncellenirken bir hata oluştu');
         }
-    };
+    }, []); 
 
-    const handleDeleteTask = async (taskId) => {
+    const handleDeleteTask = useCallback(async (taskId) => {
         try {
             await taskService.deleteTask(taskId);
             fetchTasks();
@@ -173,7 +199,7 @@ const TaskBoard = ({ classes }) => {
             console.error('Task silinirken hata:', error);
             toast.error('Task silinirken bir hata oluştu');
         }
-    }
+    }, [fetchTasks]); // fetchTasks'e bağımlı
 
     if (loading) {
         return (
@@ -213,6 +239,7 @@ const TaskBoard = ({ classes }) => {
                         columnId={column.id}
                         title={column.title}
                         tasks={column.tasks}
+                        users={users}
                         showCheckIcon={column.showCheckIcon}
                         onTaskUpdate={handleTaskUpdate}
                         onTaskDelete={handleDeleteTask}
