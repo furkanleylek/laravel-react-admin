@@ -135,7 +135,7 @@ const TaskBoard = ({ classes }) => {
         } finally {
             setLoading(false);
         }
-    }, []); 
+    }, []);
 
     useEffect(() => {
         fetchTasks();
@@ -173,7 +173,7 @@ const TaskBoard = ({ classes }) => {
             toast.error('Task güncellenirken bir hata oluştu');
             fetchTasks();
         }
-    }, [tasks, fetchTasks]); 
+    }, [tasks, fetchTasks]);
 
     const handleTaskUpdate = useCallback(async (updatedTask) => {
         try {
@@ -188,7 +188,7 @@ const TaskBoard = ({ classes }) => {
             console.error('Task güncellenirken hata:', error);
             toast.error('Task güncellenirken bir hata oluştu');
         }
-    }, []); 
+    }, []);
 
     const handleDeleteTask = useCallback(async (taskId) => {
         try {
@@ -203,7 +203,15 @@ const TaskBoard = ({ classes }) => {
 
     if (loading) {
         return (
-            <Grid container justifyContent="center" alignItems="center" style={{ minHeight: '400px' }}>
+            <Grid
+                container
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    minHeight: '400px'
+                }}
+            >
                 <CircularProgress />
             </Grid>
         );
@@ -231,7 +239,8 @@ const TaskBoard = ({ classes }) => {
 
     return (
         <DragDropContext onDragEnd={handleDragEnd}>
-            <Grid container spacing={3}>
+            <Grid container style={{ margin: '24px' }}
+            >
                 {columns.map((column) => (
                     <Column
                         key={column.id}
@@ -247,6 +256,7 @@ const TaskBoard = ({ classes }) => {
                 ))}
             </Grid>
         </DragDropContext>
+
     );
 };
 
