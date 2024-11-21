@@ -32,7 +32,7 @@ class TasksController extends Controller
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($userId) {
             return Task::query()
-                ->select(['id', 'title', 'description', 'status', 'user_id', 'assigned_to', 'created_at'])
+                ->select(['id', 'title', 'description', 'status', 'user_id','start_date', 'assigned_to', 'created_at'])
                 ->with(['user:id,name,username,email', 'assignedUser:id,name,username,email'])
                 ->where(function ($query) use ($userId) {
                     $query->where('user_id', $userId)
