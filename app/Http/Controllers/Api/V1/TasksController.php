@@ -164,7 +164,14 @@ class TasksController extends Controller
         // Sonra soft delete yap
         $task->delete();
     
-        return response()->json(null, 204);
+        return response()->json([
+            'message' => 'Task deleted successfully',
+            'data' => [
+                'id' => $task->id,
+                'deleted_at' => now(),
+                'deleted_by' => auth()->id()
+            ]
+        ], 200);
     }
 
     public function notifyTaskStatusChange(Request $request, Task $task)
