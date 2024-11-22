@@ -4,15 +4,26 @@ export const AppContext = createContext();
 
 export const AppProvider = ({ children, ...props }) => {
     const [shouldRefreshTasks, setShouldRefreshTasks] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [notificationCount, setNotificationCount] = useState(0)
 
     const refreshTasks = () => {
-        setShouldRefreshTasks(prev => !prev); // Toggle to trigger refresh
+        setShouldRefreshTasks(prev => !prev);
+    };
+
+    const addNotification = (notification) => {
+        setNotifications(prev => [notification, ...prev]);
+        setNotificationCount(prev => prev + 1)
     };
 
     const value = {
         ...props,
+        notifications,
         shouldRefreshTasks,
-        refreshTasks
+        notificationCount,
+        setNotificationCount,
+        refreshTasks,
+        addNotification
     };
 
     return (
