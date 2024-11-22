@@ -134,7 +134,7 @@ const UpdateTask = ({ classes, open, onClose, task, users }) => {
 
             <DialogContent>
                 <form className={classes.form} onSubmit={handleSubmit}>
-                    <Grid container spacing={2}>
+                    <Grid container style={{ margin: '24px' }}>
                         <Grid item xs={12}>
                             <FormControl className={classes.formControl}>
                                 <TextField
@@ -162,7 +162,7 @@ const UpdateTask = ({ classes, open, onClose, task, users }) => {
                             </FormControl>
                         </Grid>
 
-                        <Grid container spacing={2}>
+                        <Grid container spacing={8}>
                             <Grid item xs={12} sm={6}>
                                 <FormControl className={classes.formControl}>
                                     <TextField
@@ -191,7 +191,7 @@ const UpdateTask = ({ classes, open, onClose, task, users }) => {
                                             shrink: true,
                                         }}
                                         inputProps={{
-                                            step: 300, // 5 dakikalık adımlar
+                                            step: 300,
                                         }}
                                         fullWidth
                                     />
