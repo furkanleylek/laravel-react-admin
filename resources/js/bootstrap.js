@@ -1,6 +1,7 @@
 import axios from 'axios';
 import moment from 'moment';
 import Lang from 'lang.js';
+import Echo from 'laravel-echo';
 
 import { LOCALE } from './config';
 
@@ -30,3 +31,13 @@ window.Lang = new Lang({ messages: LOCALE });
  * We registered moment.js so that we don't have to import it all the time.
  */
 window.moment = moment;
+
+
+window.Pusher = require('pusher-js')
+
+window.Echo = new Echo({
+    broadcaster: 'pusher',
+    key: '2c6d3f63187c6cee1dac',
+    cluster: 'eu',
+    encrpyted: true
+})
