@@ -159,12 +159,7 @@ const TaskBoard = ({ classes }) => {
             };
             newTasks.splice(destination.index, 0, updatedTask);
             setTasks(newTasks);
-
-            await taskService.updateTask(draggableId, {
-                status: destination.droppableId.toLowerCase(),
-                position: destination.index
-            });
-
+            
             await taskService.notifyTaskStatusChange(draggableId, destination.droppableId.toLowerCase());
 
             toast.success('Task durumu güncellendi');
