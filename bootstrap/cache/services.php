@@ -38,9 +38,10 @@
     34 => 'Intervention\\Image\\ImageServiceProvider',
     35 => 'App\\Providers\\AppServiceProvider',
     36 => 'App\\Providers\\AuthServiceProvider',
-    37 => 'App\\Providers\\EventServiceProvider',
-    38 => 'App\\Providers\\TelescopeServiceProvider',
-    39 => 'App\\Providers\\RouteServiceProvider',
+    37 => 'App\\Providers\\BroadcastServiceProvider',
+    38 => 'App\\Providers\\EventServiceProvider',
+    39 => 'App\\Providers\\TelescopeServiceProvider',
+    40 => 'App\\Providers\\RouteServiceProvider',
   ),
   'eager' => 
   array (
@@ -69,9 +70,10 @@
     22 => 'Intervention\\Image\\ImageServiceProvider',
     23 => 'App\\Providers\\AppServiceProvider',
     24 => 'App\\Providers\\AuthServiceProvider',
-    25 => 'App\\Providers\\EventServiceProvider',
-    26 => 'App\\Providers\\TelescopeServiceProvider',
-    27 => 'App\\Providers\\RouteServiceProvider',
+    25 => 'App\\Providers\\BroadcastServiceProvider',
+    26 => 'App\\Providers\\EventServiceProvider',
+    27 => 'App\\Providers\\TelescopeServiceProvider',
+    28 => 'App\\Providers\\RouteServiceProvider',
   ),
   'deferred' => 
   array (
