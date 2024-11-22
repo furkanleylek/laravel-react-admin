@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\Task;
+use App\Events\NewNotification;
+
 use Illuminate\Notifications\Notification;
 
 class TaskStatusChanged extends Notification
@@ -25,12 +27,21 @@ class TaskStatusChanged extends Notification
 
     public function toArray($notifiable)
     {
-        return [
-            'task_id' => $this->task->id,
-            'task_title' => $this->task->title,
+
+        $message = ($this->oldStatus === $this->newStatus) 
+            ? "Task '{$this->task->title}' position changed" 
+            : "Task '{$this->task->title}' status changed from {$this->oldStatus} to {$this->newStatus}";
+
+        $notificationData = [
+            'task' => $this->task,
             'old_status' => $this->oldStatus,
             'new_status' => $this->newStatus,
-            'message' => "Task '{$this->task->title}' status changed from {$this->oldStatus} to {$this->newStatus}"
+            'message' => $message
         ];
+       
+        event(new NewNotification($notificationData));
+
+        return $notificationData;
+
     }
 }
