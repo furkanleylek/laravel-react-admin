@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Task;
+use App\Events\NewNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Notification;
 
@@ -25,12 +26,18 @@ class TaskStartDateNotification extends Notification
     }
    
     public function toArray($notifiable)
+
     {
-        return [
-            'task_id' => $this->task->id,
-            'task_title' => $this->task->title,
-            'start_date' => $this->task->start_date,
-            'message' => "Task '{$this->task->title}' start date has arrived !"
+        $message = "Task '{$this->task->title}' start time has arrived .";
+
+        $notificationData = [
+            'task' => $this->task,
+            'message' => $message
         ];
+
+        event(new NewNotification($notificationData));
+
+        return $notificationData;
+
     }
 }

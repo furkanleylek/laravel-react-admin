@@ -47,10 +47,9 @@ class ProcessScheduledTask implements ShouldQueue
                 ]);
             }
 
-            $assignedUser = User::find($this->task->assigned_to);
             $createdByUser = User::find($this->task->user_id);
     
-            collect([$assignedUser, $createdByUser])
+            collect([$createdByUser])
                 ->filter()
                 ->unique('id')
                 ->each(function ($user) {
