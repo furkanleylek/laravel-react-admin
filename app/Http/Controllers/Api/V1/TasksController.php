@@ -184,10 +184,9 @@ class TasksController extends Controller
                 'status' => $newStatus
             ]);
 
-            $assignedUser = User::find($task->assigned_to);
             $createdByUser = User::find($task->user_id);
 
-            $usersToNotify = collect([$assignedUser, $createdByUser])
+            $usersToNotify = collect([$createdByUser])
                 ->filter()
                 ->unique('id')
                 ->each(function ($user) use ($task, $oldStatus, $newStatus) {
@@ -203,6 +202,7 @@ class TasksController extends Controller
             return response()->json([
                 'message' => 'Task status updated successfully',
                 'task' => $task,
+                'oldStatus'=>$oldStatus,
                 'notifications_sent' => $usersToNotify->count()
             ]);
 
