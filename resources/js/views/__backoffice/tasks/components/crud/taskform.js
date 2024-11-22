@@ -186,7 +186,7 @@ const TaskForm = ({ classes }) => {
 
                 <DialogContent>
                     <form className={classes.form} onSubmit={handleSubmit}>
-                        <Grid container spacing={2}>
+                        <Grid container spacing={8}>
                             <Grid item xs={12}>
                                 <FormControl className={classes.formControl}>
                                     <TextField
