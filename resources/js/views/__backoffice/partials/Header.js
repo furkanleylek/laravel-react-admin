@@ -49,6 +49,7 @@ import {
 import { Ph as PhIcon, Us as UsIcon } from '../../../icons/flags/4x3';
 import { Skeleton } from '../../../ui';
 import { AppContext } from '../../../AppContext';
+import NotificationMenu from '../tasks/components/notification-menu';
 
 const UserAvatar = props => {
     const { user } = props;
@@ -557,20 +558,7 @@ function Header(props) {
                         )}
 
                         <Grid item>
-                            <Tooltip
-                                title={Lang.get('navigation.notifications')}
-                            >
-                                <IconButton color="inherit">
-                                    <Badge
-                                        badgeContent={
-                                            new Date().getMinutes() + user.id
-                                        }
-                                        color="secondary"
-                                    >
-                                        <NotificationsIcon />
-                                    </Badge>
-                                </IconButton>
-                            </Tooltip>
+                            <NotificationMenu/>
                         </Grid>
 
                         <Grid item>

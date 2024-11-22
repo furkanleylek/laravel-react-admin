@@ -24,6 +24,8 @@ import {
     People as PeopleIcon,
     Security as SecurityIcon,
     ShowChart as ShowChartIcon,
+    Assignment as TaskIcon,
+
 } from '@material-ui/icons';
 
 import { APP } from '../../../config';
@@ -114,6 +116,30 @@ function Sidebar(props) {
                 },
             ],
         },
+
+        {
+            name: 'Task Management',
+            id: 'task-management',
+            links: [
+                {
+                    name: Lang.get('navigation.tasks'),
+                    icon: (
+                        <Tooltip
+                            title={
+                                minimized ? Lang.get('navigation.tasks') : ''
+                            }
+                        >
+                            <TaskIcon />
+                        </Tooltip>
+                    ),
+                    path: NavigationUtils.route(
+                        'backoffice.tasks',
+                    ),
+                },
+            ],
+        },
+
+
     ];
 
     useEffect(() => {

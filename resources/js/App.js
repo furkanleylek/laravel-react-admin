@@ -83,7 +83,7 @@ function App(props) {
     const authenticate = async tokenString => {
         const token = JSON.parse(tokenString);
 
-        if (token === {}) {
+        if (Object.keys(token).length === 0) {
             return;
         }
 
